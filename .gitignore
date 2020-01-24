@@ -1,0 +1,7 @@
+.gradle
+.idea
+build
+src/main/c/minimap2
+src/main/c/version.h
+src/main/c/*.o
+src/main/c/libmm2.*
