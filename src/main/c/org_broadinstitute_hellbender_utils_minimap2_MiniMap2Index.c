@@ -165,17 +165,23 @@ Java_org_broadinstitute_hellbender_utils_minimap2_MiniMap2Index_createAlignments
                 *buf++ = pAlign->rid;
                 *buf++ = pAlign->rs;
                 *buf++ = pAlign->rev ? ~pAlign->mapq : pAlign->mapq;
-                *buf++ = pAlign->p ? (pAlign->p->n_cigar + (pAlign->qs > 0) + (pAlign->qe < seqLen)) : 0;
-                if ( pAlign->qs > 0 ) {
-                    *buf++ = (pAlign->qs << 4) | 4; // soft-clip at the beginning
-                }
-                if ( pAlign->p ) {
+                if ( !pAlign->p ) {
+                    *buf++ = 0;
+                } else {
+                    *buf++ = pAlign->p->n_cigar + (pAlign->qs > 0) + (pAlign->qe < seqLen);
+                    if ( !pAlign->rev && pAlign->qs > 0 ) {
+                        *buf++ = (pAlign->qs << 4) | 4; // soft-clip at the beginning
+                    } else if ( pAlign->rev && pAlign->qe < seqLen ) {
+                        *buf++ = ((seqLen - pAlign->qe) << 4) | 4; // final soft-clip reversed to beginning
+                    }
                     uint32_t nCigar = pAlign->p->n_cigar;
                     memcpy(buf, pAlign->p->cigar, nCigar * sizeof(uint32_t));
                     buf += nCigar;
-                }
-                if ( pAlign->qe < seqLen ) {
-                    *buf++ = ((seqLen - pAlign->qe) << 4) | 4; // final soft-clip
+                    if ( !pAlign->rev && pAlign->qe < seqLen ) {
+                        *buf++ = ((seqLen - pAlign->qe) << 4) | 4; // final soft-clip
+                    } else if ( pAlign->rev && pAlign->qs > 0 ) {
+                        *buf++ = (pAlign->qs << 4) | 4; // initial soft-clip reversed to end
+                    }
                 }
             }
             free(pAlign->p);
