@@ -32,11 +32,11 @@ public class MiniMap2AlignerUnitTest {
                     "TTTTTTTTACACATGGGATAATGTTTTGGCTAGATGGCTCCCCTACTTAGAAACATACAATTGCTAGTCATATTTCTAATTTTAGGATTTCGAGATACTGGTGATGAAGATCGGGGGGGG".getBytes(),
                     "ATCCAAAGAAAAGCAGAGAAATAAATAACTTGTTAGAGAGCAATGTAAGGTTAAGGGAAAGCTTTCAGGTTTGTTTTGAAGAACGAGAAATACCAAATGGTGCTTGCAAGCAATGAGAAA".getBytes()));
             Assert.assertEquals(alignments, Arrays.asList(
-                    Collections.singletonList(new MiniMap2Alignment(0, 0, false, 60, "120M")),
-                    Collections.singletonList(new MiniMap2Alignment(0, 8, false, 60, "8S112M")),
-                    Collections.singletonList(new MiniMap2Alignment(0, 0, false, 60, "112M8S")),
-                    Collections.singletonList(new MiniMap2Alignment(0, 8, false, 60, "8S104M8S")),
-                    Collections.singletonList(new MiniMap2Alignment(1, 60, true, 60, "120M"))));
+                    Collections.singletonList(new MiniMap2Alignment(0, 0, 0, 60, 0, "120M")),
+                    Collections.singletonList(new MiniMap2Alignment(0, 0, 8, 60, 0, "8S112M")),
+                    Collections.singletonList(new MiniMap2Alignment(0, 0, 0, 60, 0, "112M8S")),
+                    Collections.singletonList(new MiniMap2Alignment(0, 0, 8, 60, 0, "8S104M8S")),
+                    Collections.singletonList(new MiniMap2Alignment(16, 1, 60, 60, 0, "120M"))));
         }
     }
 }

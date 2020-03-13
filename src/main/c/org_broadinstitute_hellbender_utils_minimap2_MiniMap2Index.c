@@ -149,8 +149,8 @@ Java_org_broadinstitute_hellbender_utils_minimap2_MiniMap2Index_createAlignments
         mm_reg1_t* pAlign = pAlignsBase;
         mm_reg1_t* pEnd = pAlign + nAligns;
         while ( pAlign != pEnd ) {
-            uint32_t nCigar = pAlign->p ? (pAlign->p->n_cigar + (pAlign->qs > 0) + (pAlign->qe < seqLen)) : 0;
-            len += (4 + nCigar) * sizeof(uint32_t);
+            uint32_t nCigar = pAlign->p ? (pAlign->p->n_cigar + (pAlign->qs > 0) + (pAlign->qe < seqLen) + 1) : 0;
+            len += (5 + nCigar) * sizeof(uint32_t);
             pAlign += 1;
         }
         uint32_t* buf = malloc(len + sizeof(uint32_t)); // extra space for buffer len
@@ -162,13 +162,19 @@ Java_org_broadinstitute_hellbender_utils_minimap2_MiniMap2Index_createAlignments
         pAlign = pAlignsBase;
         while ( pAlign != pEnd ) {
             if ( buf ) {
+                int samFlag = 0;
+                if ( pAlign->rev ) samFlag |= 0x10;
+                if ( pAlign->parent != pAlign->id ) samFlag |= 0x100;
+                else if ( !pAlign->sam_pri ) samFlag |= 0x800;
+                *buf++ = samFlag;
                 *buf++ = pAlign->rid;
                 *buf++ = pAlign->rs;
-                *buf++ = pAlign->rev ? ~pAlign->mapq : pAlign->mapq;
+                *buf++ = pAlign->mapq;
                 if ( !pAlign->p ) {
                     *buf++ = 0;
                 } else {
                     *buf++ = pAlign->p->n_cigar + (pAlign->qs > 0) + (pAlign->qe < seqLen);
+                    *buf++ = pAlign->blen - pAlign->mlen + pAlign->p->n_ambi;
                     if ( !pAlign->rev && pAlign->qs > 0 ) {
                         *buf++ = (pAlign->qs << 4) | 4; // soft-clip at the beginning
                     } else if ( pAlign->rev && pAlign->qe < seqLen ) {
